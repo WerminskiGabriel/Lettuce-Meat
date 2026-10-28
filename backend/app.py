@@ -3,6 +3,7 @@ import os
 from config import Config, TestConfig
 from db import DB
 import models
+from views.meeting import bp
 
 
 def create_app(config_class=Config) -> Flask:
@@ -14,4 +15,5 @@ def create_app(config_class=Config) -> Flask:
     with app.app_context():
         db.db.create_all()
 
+    app.register_blueprint(bp)
     return app

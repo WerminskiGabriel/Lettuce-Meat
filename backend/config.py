@@ -16,4 +16,5 @@ class Config:
 
 
 class TestConfig(Config):
-    pass
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"

@@ -16,14 +16,14 @@ class Meeting(DB.db.Model):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, nullable=False, unique=True,
                                           default=uuid.uuid4)
     title: Mapped[str] = mapped_column(String(50))
-    timezone: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now(UTC))
-    date_start: Mapped[date] = mapped_column()
-    date_end: Mapped[date] = mapped_column()
-    day_start_minute: Mapped[int] = mapped_column()
-    day_end_minute: Mapped[int] = mapped_column()
+    timezone: Mapped[str] = mapped_column(String(6))
+    date_start: Mapped[date | None] = mapped_column()
+    date_end: Mapped[date | None] = mapped_column()
+    day_start_minute: Mapped[int | None] = mapped_column()
+    day_end_minute: Mapped[int | None] = mapped_column()
     slot_minutes: Mapped[int] = mapped_column()
     status: Mapped[MeetingStatus] = mapped_column(default=MeetingStatus.OPEN)
-    creation_date: Mapped[datetime] = mapped_column()
+    creation_date: Mapped[datetime] = mapped_column(default=datetime.now(UTC))
     admin_id: Mapped[uuid.UUID | None] = mapped_column()
 
 
