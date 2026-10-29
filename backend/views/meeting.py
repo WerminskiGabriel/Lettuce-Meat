@@ -15,7 +15,8 @@ def create_meeting():
 
         dto = CreateMeetingDTO.model_validate(data)
     except ValidationError as e:
-        return jsonify({"errors": e.errors(include_input=False)}), 400  # bad request
+        return jsonify(
+            {"errors": [{"loc": error["loc"], "msg": error["msg"]} for error in e.errors()]}), 400  # bad request
 
     meeting_table = Meeting(**dto.model_dump())
     DB.db.session.add(meeting_table)

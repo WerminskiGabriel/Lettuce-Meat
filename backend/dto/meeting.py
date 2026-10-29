@@ -19,11 +19,11 @@ class CreateMeetingDTO(BaseModel):
     @model_validator(mode="after")
     def check_validity(self):
         if self.date_start > self.date_end:
-            raise ValidationError("date_end has to be greater than date_start")
+            raise ValueError("date_end has to be greater than date_start")
         if self.day_start_minute > self.day_end_minute:
-            raise ValidationError("day_end_minute has to be greater than day_start_minute")
+            raise ValueError("day_end_minute has to be greater than day_start_minute")
         if (24 * 60) % self.slot_minutes != 0:
-            raise ValidationError("slot_minutes has to evenly divide 1440(24*60)")
+            raise ValueError("slot_minutes has to evenly divide 1440(24*60)")
         return self
 
 
