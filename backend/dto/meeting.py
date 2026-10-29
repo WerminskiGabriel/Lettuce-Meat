@@ -1,7 +1,7 @@
 from datetime import date, time, datetime
 from pydantic import BaseModel, Field, model_validator, ValidationError
 import uuid
-from models import MeetingStatus
+from models import MeetingStatus, AvailabilityStatus
 
 
 class CreateMeetingDTO(BaseModel):
@@ -47,3 +47,21 @@ class AvailabilitySlot(DB.db.Model):
     start_minute: Mapped[int] = mapped_column(primary_key=True)
     availability: Mapped[AvailabilistyStatus] = mapped_column(nullable=False, default=AvailabilistyStatus.CANDO)
 """
+
+
+class AvailabilitySlotDTO(BaseModel):
+    on_date: date
+    start_minute: int = Field(ge=0, le=1440)
+    availability: AvailabilityStatus
+
+
+class EditAvailabilitySlotDTO(BaseModel):
+    participant_id: uuid.UUID | None = None
+    display_name: str = Field(min_length=1, max_length=20)
+    slots: list[AvailabilitySlotDTO]
+
+
+class DeleteAvailabilitySlotDTO(BaseModel):
+    participant_id: uuid.UUID | None = None
+
+    slots: list[AvailabilitySlotDTO]

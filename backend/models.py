@@ -11,7 +11,6 @@ class MeetingStatus(StrEnum):
     CLOSED = "closed"
 
 
-# MappedColumn docs - primary_key=, nullable=, unique=, default=, ForeignKey=, String(),
 class Meeting(DB.db.Model):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, nullable=False, unique=True,
                                           default=uuid.uuid4)
@@ -35,7 +34,7 @@ class Participant(DB.db.Model):
     edit_token_hash: Mapped[str] = mapped_column()
 
 
-class AvailabilistyStatus(StrEnum):
+class AvailabilityStatus(StrEnum):
     PREFERRED = "preferred"
     CANDO = "canDo"
 
@@ -44,4 +43,4 @@ class AvailabilitySlot(DB.db.Model):
     participant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), primary_key=True, nullable=False)
     on_date: Mapped[date] = mapped_column(primary_key=True)
     start_minute: Mapped[int] = mapped_column(primary_key=True)
-    availability: Mapped[AvailabilistyStatus] = mapped_column(nullable=False, default=AvailabilistyStatus.CANDO)
+    availability: Mapped[AvailabilityStatus] = mapped_column(nullable=False, default=AvailabilityStatus.CANDO)
