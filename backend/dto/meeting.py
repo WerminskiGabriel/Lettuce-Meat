@@ -27,28 +27,6 @@ class CreateMeetingDTO(BaseModel):
         return self
 
 
-"""
-class Participant(DB.db.Model):
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, nullable=False, unique=True,
-                                          default=uuid.uuid4)
-    meeting_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("meeting.id"))
-    display_name: Mapped[str] = mapped_column(String(50))
-    edit_token_hash: Mapped[str] = mapped_column()
-
-
-class AvailabilistyStatus(StrEnum):
-    PREFERRED = "preferred"
-    CANDO = "canDo"
-
-
-class AvailabilitySlot(DB.db.Model):
-    participant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), primary_key=True, nullable=False)
-    on_date: Mapped[date] = mapped_column(primary_key=True)
-    start_minute: Mapped[int] = mapped_column(primary_key=True)
-    availability: Mapped[AvailabilistyStatus] = mapped_column(nullable=False, default=AvailabilistyStatus.CANDO)
-"""
-
-
 class AvailabilitySlotDTO(BaseModel):
     on_date: date
     start_minute: int = Field(ge=0, le=1440)
@@ -58,10 +36,4 @@ class AvailabilitySlotDTO(BaseModel):
 class EditAvailabilitySlotDTO(BaseModel):
     participant_id: uuid.UUID | None = None
     display_name: str = Field(min_length=1, max_length=20)
-    slots: list[AvailabilitySlotDTO]
-
-
-class DeleteAvailabilitySlotDTO(BaseModel):
-    participant_id: uuid.UUID | None = None
-
     slots: list[AvailabilitySlotDTO]

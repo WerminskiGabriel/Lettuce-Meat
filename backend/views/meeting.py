@@ -1,10 +1,9 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
-
 import auth_tokens
 from db import DB
 from models import Meeting, Participant, AvailabilitySlot
-from dto.meeting import CreateMeetingDTO, EditAvailabilitySlotDTO, DeleteAvailabilitySlotDTO
+from dto.meeting import CreateMeetingDTO, EditAvailabilitySlotDTO
 from sqlalchemy import select, delete
 
 bp = Blueprint('meetings', __name__, url_prefix='/api/meetings')
@@ -29,6 +28,7 @@ def create_meeting():
 
 @bp.get("/<uuid:meeting_id>")
 def get_meeting(meeting_id):
+    # TODO return owned_slots if token exists
     meeting = DB.db.get_or_404(Meeting, meeting_id)
 
     participants = DB.db.session.scalars(
@@ -38,7 +38,7 @@ def get_meeting(meeting_id):
     slots = DB.db.session.scalars(
         select(AvailabilitySlot).where(AvailabilitySlot.participant_id.in_(participant_ids))).all()
 
-    return jsonify(f"meeting:{meeting},participants:{participants},slots:{slots}"), 200
+    return jsonify({"meeting": meeting, "participants": participants, "slots": slots}), 200
 
 
 @bp.put("/<uuid:meeting_id>/availability")
@@ -75,7 +75,7 @@ def edit_meeting_availability(meeting_id):
     DB.db.session.commit()
 
     return jsonify(
-        {"edit_token": token, "participant_id": dto.participant_id, "slots_changed": dto.model_dump()["slots"]}), 200
+        {"edit_token": token, "participant_id": participant.id, "slots_changed": dto.model_dump()["slots"]}), 200
 
 
 @bp.delete("/<uuid:meeting_id>/availability/")

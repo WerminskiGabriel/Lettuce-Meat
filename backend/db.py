@@ -3,6 +3,7 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_migrate import Migrate
 from sqlalchemy import event, Engine
 
+
 class Base(DeclarativeBase):
     pass
 
