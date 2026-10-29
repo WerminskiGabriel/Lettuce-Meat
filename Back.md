@@ -77,8 +77,9 @@ backend/
   db.py
   models.py
   auth_tokens.py
-  views/meetings.py
-  tests/
+  dto/meeting.py
+  views/meeting.py
+  tests/test_meetings.py
   requirements.txt
   DB.db
 ```
@@ -135,11 +136,155 @@ backend/
 
 ## DTO - data transfer object
 
+- CreateMeetingDTO
+    - title: str (length=0-50)
+    - timezone: str (length=5)
+    - date_start: date
+    - date_end: date
+    - day_start_minute: int (value=0-1440)
+    - day_end_minute: int (value=0-1440)
+    - slot_minutes: int
+    - status: MeetingStatus
+    - creation_date: date
+    - admin_id: uuid.UUID
+
+
+- AvailabilitySlotDTO
+    - on_date: date
+    - start_minute: int (value=0-1440)
+    - availability: AvailabilityStatus
+
+
+- EditAvailabilitySlotDTO
+    - participant_id: UUID | None
+    - display_name: str (length=1-20)
+    - slots: list[AvailabilitySlotDTO]
+
 ## API
 
-| Method | Path                            | Notes                                                                                           |
-|--------|---------------------------------|-------------------------------------------------------------------------------------------------|
-| POST   | /api/meetings                   | Create; returns id -> share /m/{id}                                                             |
-| GET    | /api/meetings/<id>              | Meta, participants, cells {on_date, start_minute, count, participant_ids}, mine if X-Edit-Token |
-| PUT    | /api/meetings/<id>/availability | {display_name, slots[]}; no token -> create + return token; with token -> replace slots         |
-| DELETE | /api/meetings/<id>/availability | Token required; remove participant                                                              |
+| Method | Path                            |                                          Notes                                          | Valid | Invalid |
+|--------|:--------------------------------|:---------------------------------------------------------------------------------------:|-------|---------|
+| POST   | /api/meetings                   |                    Create meeting, returns id  -> share with /m{id}                     | 200   | 400     |
+| GET    | /api/meetings/<id>              |           get meeting, participants, slots, mine_slots if X-Edit-Token exists           | 200   | 404     |
+| PUT    | /api/meetings/<id>/availability | {display_name, slots[]}; no token -> create + return token; with token -> replace slots | 200   | 400     |
+| DELETE | /api/meetings/<id>/availability |                 Token required, remove participants from provided slots                 | 200   | 400/404 | 
+|
+
+## API
+
+### 1. POST /api/meetings - create_meeting
+
+Request body:
+
+```python
+class CreateMeetingDTO():
+    title: str = Field(min_length=0, max_length=50)
+    timezone: str = Field(min_length=5, max_length=5)
+    date_start: date
+    date_end: date = Field()
+    day_start_minute: int = Field(ge=0, le=1440)
+    day_end_minute: int = Field(ge=0, le=1440)
+    slot_minutes: int
+    status: MeetingStatus
+    creation_date: date
+    admin_id: uuid.UUID
+```
+
+Response 201:
+
+```json
+{
+  "id": uuid4
+}
+```
+
+### 2. GET /api/meetings/<id> - get_meeting
+
+Response 200:
+
+```json
+{
+  "meeting": {},
+  "participants": [],
+  "slots": [],
+  "slots_mine": []
+}
+```
+
+### 3. PUT /api/meetings/<id>/availability - edit_meeting_availability
+
+Headers (optional):
+
+- X-Edit-Token:
+
+Request body:
+
+```python
+class EditAvailabilitySlotDTO(BaseModel):
+    participant_id: uuid.UUID | None = None
+    display_name: str = Field(min_length=1, max_length=20)
+    slots: list[
+
+    class AvailabilitySlotDTO(BaseModel):
+        on_date: date
+        start_minute: int = Field(ge=0, le=1440)
+        availability: AvailabilityStatus
+
+    ]
+
+```
+
+Response 200:
+
+```json
+{
+  "edit_token": str,
+  "participant_id": str
+  "slots_changed": []
+}
+```
+
+### 4. DELETE /api/meetings/<id>/availability - delete_meeting_availability
+
+Headers (required):
+
+- X-Edit-Token:
+
+Request body - same as PUT:
+
+```python
+class EditAvailabilitySlotDTO(BaseModel):
+    participant_id: uuid.UUID | None = None
+    display_name: str = Field(min_length=1, max_length=20)
+    slots: list[
+
+    class AvailabilitySlotDTO(BaseModel):
+        on_date: date
+        start_minute: int = Field(ge=0, le=1440)
+        availability: AvailabilityStatus
+
+    ]
+
+```
+
+### Error format (400)
+
+```json
+{
+  "errors": [
+    {
+      "loc": [
+        "slot_minutes"
+      ],
+      "msg": "Value error, ..."
+    }
+  ]
+}
+```
+
+| Method | valid                                          | invalid                                               |
+|--------|------------------------------------------------|-------------------------------------------------------|
+| POST   | id:,status                                     | errors:[loc:,msg:], 400                               |
+| GET    | meeting:, participants:,slots:,200             | ,404                                                  |
+| PUT    | edit_token:,participant_id:,slots_changed:,200 | errors:[loc:,msg:], 400                               |
+| DELETE | edit_token:,participant_id:,slots_changed:,200 | error:Token is required,400 / errors:[loc:,msg:], 400 |
