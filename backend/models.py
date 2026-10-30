@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, TIMESTAMP, ForeignKey
 from db import DB
@@ -10,7 +12,7 @@ class MeetingStatus(StrEnum):
     OPEN = "open"
     CLOSED = "closed"
 
-
+@dataclass
 class Meeting(DB.db.Model):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, nullable=False, unique=True,
                                           default=uuid.uuid4)
@@ -25,7 +27,7 @@ class Meeting(DB.db.Model):
     creation_date: Mapped[datetime] = mapped_column(default=datetime.now(UTC))
     admin_id: Mapped[uuid.UUID | None] = mapped_column()
 
-
+@dataclass
 class Participant(DB.db.Model):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, nullable=False, unique=True,
                                           default=uuid.uuid4)
@@ -39,6 +41,7 @@ class AvailabilityStatus(StrEnum):
     CANDO = "canDo"
 
 
+@dataclass
 class AvailabilitySlot(DB.db.Model):
     participant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), primary_key=True, nullable=False)
     on_date: Mapped[date] = mapped_column(primary_key=True)

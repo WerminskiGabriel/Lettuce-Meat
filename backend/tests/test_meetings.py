@@ -133,6 +133,17 @@ class TestGetMeeting:
         body = response.get_json()
         return body
 
+    def add_valid_slots(self, meeting_id: str) -> str:
+        data = {
+            "display_name": "gabriel",
+            "slots": [
+                {"on_date": "2026-10-28", "start_minute": 480, "availability": "preferred"},
+                {"on_date": "2026-10-28", "start_minute": 510, "availability": "canDo"}
+            ]
+        }
+        response = self.client.put(f"/api/meetings/{meeting_id}/availability", json=data)
+        return response.get_json()
+
     def test_valid_response(self):
         created_meeting = self.create_valid_meeting()
         meeting_id = created_meeting["id"]
@@ -140,12 +151,8 @@ class TestGetMeeting:
         response = self.client.get(f"/api/meetings/{meeting_id}")
         body = response.get_json()
         assert response.status_code == 200, f"expected http status 200, got: {response.status_code}:\n{body}"
-
-        assert "meeting" in body
-        assert "participants" in body
         assert "slots" in body
-
-        print(body)
+        assert not ("mine_slots" in body)
 
     def test_not_existing_meeting(self):
         created_meeting = self.create_valid_meeting()
@@ -155,6 +162,18 @@ class TestGetMeeting:
         body = response.get_json()
         assert response.status_code == 404, f"expected http status 404, got: {response.status_code}:\n{body}"
 
+    def test_valid_with_token(self):
+        created_meeting = self.create_valid_meeting()
+        meeting_id = created_meeting["id"]
+
+        edit_availability_json = self.add_valid_slots(meeting_id)
+        token = edit_availability_json["edit_token"]
+
+        response = self.client.get(f"/api/meetings/{meeting_id}", headers={"X-Edit-Token": token})
+        body = response.get_json()
+        assert response.status_code == 200, f"expected http status 200, got: {response.status_code}:\n{body}"
+        assert "slots" in body
+        assert "slots_mine" in body
 
 
 class TestEditMeetingAvailability:

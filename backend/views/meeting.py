@@ -28,8 +28,8 @@ def create_meeting():
 
 @bp.get("/<uuid:meeting_id>")
 def get_meeting(meeting_id):
-    # TODO return owned_slots if token exists
     meeting = DB.db.get_or_404(Meeting, meeting_id)
+    token = request.headers.get("X-Edit-Token")
 
     participants = DB.db.session.scalars(
         select(Participant).where(Participant.meeting_id == meeting_id)).all()
@@ -37,6 +37,21 @@ def get_meeting(meeting_id):
 
     slots = DB.db.session.scalars(
         select(AvailabilitySlot).where(AvailabilitySlot.participant_id.in_(participant_ids))).all()
+
+    if token is not None:
+        participant = DB.db.session.scalars(
+            select(Participant).where(
+                Participant.meeting_id == meeting_id,
+                Participant.edit_token_hash == auth_tokens.hash_token(token),
+            )
+        ).first()
+        if participant is not None:
+            slots_mine = [
+                {"on_date": str(s.on_date), "start_minute": s.start_minute, "availability": s.availability}
+                for s in slots if s.participant_id == participant.id
+            ]
+            return jsonify(
+                {"meeting": meeting, "participants": participants, "slots": slots, "slots_mine": slots_mine}), 200
 
     return jsonify({"meeting": meeting, "participants": participants, "slots": slots}), 200
 
