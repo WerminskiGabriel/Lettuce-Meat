@@ -207,7 +207,7 @@ Response 200:
   "meeting": {},
   "participants": [],
   "slots": [],
-  "slots_mine": []
+  "slots_mine": [] ( if token exists )
 }
 ```
 

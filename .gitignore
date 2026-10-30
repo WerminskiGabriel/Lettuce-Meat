@@ -227,3 +227,17 @@ __marimo__/
 *.sqlite
 *.sqlite3
 
+
+node_modules
+*.log
+
+dist/
+
+.vite/
+
+stats.html
+
+.eslintcache
+
+*.local
+
