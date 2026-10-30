@@ -1,122 +1,74 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import {useState} from "react";
+import {createMeeting, getMeeting, editMeetingAvailability, deleteMeetingAvailability} from "./api/client.ts";
+import type {CreateMeetingDTO, EditAvailabilitySlotDTO} from "./types.tsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+    const [meetingId, meetingIdSetter] = useState<string>("");
+    const [token, tokenSetter] = useState<string>("");
+    const [output, outputSetter] = useState(null);
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    const sampleSlots: EditAvailabilitySlotDTO = {
+        participant_id: null,
+        display_name: "charlie-kirk",
+        slots: [
+            {on_date: "2026-10-28", start_minute: 480, availability: "preferred"},
+            {on_date: "2026-10-28", start_minute: 930, availability: "canDo"},
+        ],
+    };
+
+    async function handleCreate() {
+        const dto: CreateMeetingDTO = {
+            title: "bit-meeting-kawka",
+            timezone: "UTC+1",
+            date_start: "2026-10-28",
+            date_end: "2026-10-30",
+            day_start_minute: 480, // 8
+            day_end_minute: 960, // 16
+            slot_minutes: 30,
+            status: "open",
+            creation_date: "2026-10-28",
+            admin_id: crypto.randomUUID(),
+        };
+        const res = await createMeeting(dto);
+        if (res.id) {
+            meetingIdSetter(res.id);
+        }
+        outputSetter(res);
+    }
+
+    async function handleGet() {
+        const res = await getMeeting(meetingId, token || undefined);
+        outputSetter(res);
+    }
+
+    async function handlePut() {
+        const res = await editMeetingAvailability(
+            meetingId,
+            sampleSlots,
+            token || undefined
+        );
+        if (res.edit_token) {
+            tokenSetter(res.edit_token);
+        }
+        outputSetter(res);
+    }
+
+    async function handleDelete() {
+        const res = await deleteMeetingAvailability(meetingId, sampleSlots, token);
+        outputSetter(res);
+    }
+
+    return (
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+            <p>meeting id: {meetingId || "(none)"}</p>
+            <p>edit token: {token || "(none)"}</p>
 
-      <div className="ticks"></div>
+            <button onClick={handleCreate}> POST Create Meeting</button>
+            <button onClick={handleGet}> GET Meeting</button>
+            <button onClick={handlePut}> PUT Availability</button>
+            <button onClick={handleDelete}>DELETE Availability</button>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+            <pre>{JSON.stringify(output, null, 2)}</pre>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    );
 }
-
-export default App

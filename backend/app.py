@@ -1,5 +1,6 @@
-from flask import Flask, CORS
+from flask import Flask
 import os
+from flask_cors import CORS
 from config import Config, TestConfig
 from db import DB
 import models
