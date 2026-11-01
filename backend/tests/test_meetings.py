@@ -21,6 +21,7 @@ class TestCreateMeeting:
 
             "title": "bit-meeting-kawka",
             "timezone": "UTC+1",
+            "quick_description": "desc",
             "date_start": "2026-10-28",
             "date_end": "2026-10-30",
             "day_start_minute": 480,
@@ -56,6 +57,7 @@ class TestCreateMeeting:
 
             "title": "bit-meeting-kawka",
             "timezone": "UTC+1",
+            "quick_description": "desc",
             "date_start": "2027-10-28",
             "date_end": "2026-10-30",
             "day_start_minute": 480,
@@ -76,6 +78,7 @@ class TestCreateMeeting:
 
             "title": "bit-meeting-kawka",
             "timezone": "UTC+1",
+            "quick_description": "desc",
             "date_start": "2026-10-28",
             "date_end": "2026-10-30",
             "day_start_minute": 2000,
@@ -95,6 +98,7 @@ class TestCreateMeeting:
 
             "title": "bit-meeting-kawka",
             "timezone": "UTC+1",
+            "quick_description": "desc",
             "date_start": "2026-10-28",
             "date_end": "2026-10-30",
             "day_start_minute": 480,
@@ -119,6 +123,7 @@ class TestGetMeeting:
 
             "title": "bit-meeting-kawka",
             "timezone": "UTC+1",
+            "quick_description": "desc",
             "date_start": "2026-10-28",
             "date_end": "2026-10-30",
             "day_start_minute": 480,
@@ -185,6 +190,7 @@ class TestEditMeetingAvailability:
 
             "title": "bit-meeting-kawka",
             "timezone": "UTC+1",
+            "quick_description": "desc",
             "date_start": "2026-10-28",
             "date_end": "2026-10-30",
             "day_start_minute": 480,
@@ -242,6 +248,7 @@ class TestDeleteMeetingAvailability:
         data = {
             "title": "bit-meeting-kawka",
             "timezone": "UTC+1",
+            "quick_description": "desc",
             "date_start": "2026-10-28",
             "date_end": "2026-10-30",
             "day_start_minute": 480,
