@@ -73,10 +73,11 @@ export default function HomePage() {
     const [formData, setFormData] = useState({
         title: "",
         timezone: detectUtcOffset(),
+        quick_description: "",
         date_start: "",
         date_end: "",
-        start_time: "",
-        end_time: "",
+        start_time: "08-00",
+        end_time: "20-00",
         slot_minutes: 30,
         custom_slot: "",
     });
@@ -96,7 +97,7 @@ export default function HomePage() {
 
         const issues: string[] = [];
         if (!formData.title.trim()) issues.push("title is required");
-        if (formData.timezone.trim().length !== 5) issues.push("timezone must be 5 characters (UTC+1)");
+        // if (formData.timezone.trim().length !== 5) issues.push("timezone must be 5 characters (UTC+1)");
         if (!formData.date_start || !formData.date_end) issues.push("date start and date end are required");
         else if (dayCount === null) issues.push("date end is before date start");
         else if (dayCount > 31) issues.push("date range cannot be longer than 31 days");
@@ -117,6 +118,7 @@ export default function HomePage() {
             const dto: CreateMeetingDTO = {
                 title: formData.title.trim(),
                 timezone: formData.timezone.trim(),
+                quick_description: formData.quick_description,
                 date_start: formData.date_start,
                 date_end: formData.date_end,
                 day_start_minute: timeToMinutes(formData.start_time),
@@ -228,7 +230,7 @@ export default function HomePage() {
                                         <input
                                             type="text"
                                             required
-                                            maxLength={50}
+                                            maxLength={32}
                                             value={formData.title}
                                             placeholder="BIT-MEETING"
                                             onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -236,29 +238,43 @@ export default function HomePage() {
                                         />
                                     </label>
                                     <label className="block">
-                                        <span className="text-neutral-700 font-semibold block mb-2">TIMEZONE // DETECTED OFFSET</span>
-                                        <span
-                                            className={`flex items-center bg-white border-2 ${formData.timezone.trim().length === 5 ? "border-black" : "border-brand-orange"}`}>
-                                            <input
-                                                type="text"
-                                                required
-                                                minLength={5}
-                                                maxLength={5}
-                                                value={formData.timezone}
-                                                onChange={(e) => setFormData({
-                                                    ...formData,
-                                                    timezone: e.target.value.toUpperCase()
-                                                })}
-                                                className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-xs font-mono font-bold text-black uppercase focus:outline-none"
-                                            />
-                                            {zoneHint && (
-                                                <span
-                                                    className="pr-2.5 text-[10px] font-bold text-neutral-600 whitespace-nowrap">
-                                                    // {zoneHint}
-                                                </span>
-                                            )}
-                                        </span>
+                                        <span className="text-neutral-700 font-semibold block mb-2">DESCRIPTION // SHORT NOTE</span>
+                                        <input
+                                            type="text"
+                                            maxLength={120}
+                                            value={formData.quick_description}
+                                            placeholder="WEEKLY SYNC"
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                quick_description: e.target.value
+                                            })}
+                                            className="w-full bg-white border-2 border-black px-2.5 py-2 text-xs font-mono font-bold text-black uppercase placeholder:text-neutral-400 focus:outline-none focus:border-brand-orange"
+                                        />
                                     </label>
+                                    {/*<label className="block">*/}
+                                    {/*    <span className="text-neutral-700 font-semibold block mb-2">TIMEZONE // DETECTED OFFSET</span>*/}
+                                    {/*    <span*/}
+                                    {/*        className={`flex items-center bg-white border-2 ${formData.timezone.trim().length === 5 ? "border-black" : "border-brand-orange"}`}>*/}
+                                    {/*        <input*/}
+                                    {/*            type="text"*/}
+                                    {/*            required*/}
+                                    {/*            minLength={5}*/}
+                                    {/*            maxLength={6}*/}
+                                    {/*            value={formData.timezone}*/}
+                                    {/*            onChange={(e) => setFormData({*/}
+                                    {/*                ...formData,*/}
+                                    {/*                timezone: e.target.value.toUpperCase()*/}
+                                    {/*            })}*/}
+                                    {/*            className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-xs font-mono font-bold text-black uppercase focus:outline-none"*/}
+                                    {/*        />*/}
+                                    {/*        {zoneHint && (*/}
+                                    {/*            <span*/}
+                                    {/*                className="pr-2.5 text-[10px] font-bold text-neutral-600 whitespace-nowrap">*/}
+                                    {/*                // {zoneHint}*/}
+                                    {/*            </span>*/}
+                                    {/*        )}*/}
+                                    {/*    </span>*/}
+                                    {/*</label>*/}
                                 </div>
                             </div>
                             <div
@@ -466,7 +482,7 @@ export default function HomePage() {
                                 type="submit"
                                 className="px-6 py-3 bg-black text-white font-mono text-xs font-black uppercase tracking-wider hover:bg-brand-orange transition-colors whitespace-nowrap"
                             >
-                                OPEN GATE
+                                PROCEED
                             </button>
                         </div>
                     </form>

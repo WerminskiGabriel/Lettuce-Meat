@@ -1,5 +1,5 @@
 ---
-system: Let-Us-Meat Design System
+system: Lettuce-Meat Design System
 version: "2026.10"
 register: High-Contrast Swiss Industrial Brutalism
 tokens:
@@ -31,9 +31,9 @@ tokens:
     technical_grid_dense: "20px x 20px 1px rgba(255,255,255,0.25) over #FF3E00"
 ---
 
-# Let-Us-Meat — Design System & Interface Specification (`DESIGN.md`)
+# Lettuce-Meat — Design System & Interface Specification (`DESIGN.md`)
 
-This document codifies the visual language and component architecture of **Let-Us-Meat**: `#EDEDE9` concrete canvas, `#000000` structural borders, `#FF3E00` signal orange blocks, `#111111` solid carbon blocks, `Inter 900` uppercase display typography, `.diagonal-hatch` cells, and proportional `rgba(255, 62, 0, a)` heatmap density.
+This document codifies the visual language and component architecture of **Lettuce-Meat**: `#EDEDE9` concrete canvas, `#000000` structural borders, `#FF3E00` signal orange blocks, `#111111` solid carbon blocks, `Inter 900` uppercase display typography, `.diagonal-hatch` cells, and proportional `rgba(255, 62, 0, a)` heatmap density.
 
 ---
 
@@ -58,7 +58,7 @@ This document codifies the visual language and component architecture of **Let-U
 
 ### 2.1 Top Navigation Bar (`Navbar.tsx`)
 - Full-width sticky bar (`border-b-[3px] border-black bg-[#EDEDE9] min-h-[68px]`).
-- Left cell: `LET-US-MEAT` in `text-2xl md:text-3xl font-black tracking-tighter text-black uppercase` with `border-r-[2.5px] border-black`.
+- Left cell: `LETTUCE-MEAT` in `text-2xl md:text-3xl font-black tracking-tighter text-black uppercase` with `border-r-[2.5px] border-black`.
 - Right navigation cells: each item separated by `border-r-[2px] border-black`, `font-mono text-xs md:text-sm uppercase tracking-wider font-black text-black`, active item highlighted with `bg-white text-[#FF3E00] shadow-[inset_0_-4px_0_#FF3E00]`, inactive `hover:bg-black hover:text-white`.
 - Far-right primary CTA cell: `bg-[#FF3E00] text-white font-black px-7 py-4 hover:bg-black`.
 
@@ -85,8 +85,8 @@ Every cell's background color on the grid is driven directly by **`rgba(255, 62,
   - Medium overlap → mid orange (`rgba(255, 62, 0, 0.55)`).
   - Full overlap (`N/N`) → solid `rgba(255, 62, 0, 1.0)` with `#FFFFFF` text and `MAX` badge.
 - **Your Own Selection Badge inside the Cell:**
-  - If you marked `PREFERRED`: high-contrast `:) PREF` badge (`bg-black text-white`).
-  - If you marked `AVAILABLE`: high-contrast `:| AVAIL` badge (`bg-white text-black border border-black`).
+  - If you marked `PREFERRED`: high-contrast `:)` badge (`bg-black text-white`).
+  - If you marked `AVAILABLE`: high-contrast `:|` badge (`bg-white text-black border border-black`).
 
 ---
 

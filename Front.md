@@ -1,4 +1,4 @@
-# Frontend Let-Us-Meat
+# Frontend Lettuce-Meat
 
 ## Stack
 

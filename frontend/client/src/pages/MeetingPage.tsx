@@ -37,15 +37,15 @@ export default function MeetingPage() {
 
     const [nickname, setNickname] = useState<string>(() => {
         if (!id) return "GUEST";
-        return localStorage.getItem(`letusmeat_nick_${id}`) || "";
+        return localStorage.getItem(`lettucemeat_nick_${id}`) || "";
     });
     const [token, setToken] = useState<string>(() => {
         if (!id) return "";
-        return localStorage.getItem(`letusmeat_token_${id}`) || "";
+        return localStorage.getItem(`lettucemeat_token_${id}`) || "";
     });
     const [participantId, setParticipantId] = useState<string | null>(() => {
         if (!id) return null;
-        return localStorage.getItem(`letusmeat_pid_${id}`);
+        return localStorage.getItem(`lettucemeat_pid_${id}`);
     });
 
     const [mySlots, setMySlots] = useState<Record<string, AvailabilityStatus>>({});
@@ -59,7 +59,7 @@ export default function MeetingPage() {
         if (!id) return;
         try {
             setLoading(true);
-            const savedToken = localStorage.getItem(`letusmeat_token_${id}`) || undefined;
+            const savedToken = localStorage.getItem(`lettucemeat_token_${id}`) || undefined;
             const res: GetMeetingResponse = await getMeeting(id, savedToken);
             if (!res || !res.meeting) {
                 setNotFound(true);
@@ -257,7 +257,7 @@ export default function MeetingPage() {
         if (!id) return;
         const cleanNick = (nickname.trim() || "GUEST").slice(0, 20);
         setNickname(cleanNick);
-        localStorage.setItem(`letusmeat_nick_${id}`, cleanNick);
+        localStorage.setItem(`lettucemeat_nick_${id}`, cleanNick);
 
         const payloadSlots: AvailabilitySlotDTO[] = Object.entries(mySlots).map(
             ([cellKey, availability]) => {
@@ -285,14 +285,14 @@ export default function MeetingPage() {
 
             if (res.edit_token) {
                 setToken(res.edit_token);
-                localStorage.setItem(`letusmeat_token_${id}`, res.edit_token);
+                localStorage.setItem(`lettucemeat_token_${id}`, res.edit_token);
             }
             if (res.participant_id) {
                 setParticipantId(res.participant_id);
-                localStorage.setItem(`letusmeat_pid_${id}`, String(res.participant_id));
+                localStorage.setItem(`lettucemeat_pid_${id}`, String(res.participant_id));
             }
 
-            setSaveFeedback("SAVED TO QUORUM BENCH ✓");
+            setSaveFeedback("YOUR AVAILABILITY WAS SAVED");
             await loadMeeting();
         } catch {
             setSaveFeedback("ERROR SAVING AVAILABILITY");
@@ -334,7 +334,7 @@ export default function MeetingPage() {
                 token
             );
             setMySlots({});
-            setSaveFeedback("DELETED YOUR SAVED SLOTS ✓");
+            setSaveFeedback("YOUR AVAILABILITY WAS SAVED");
             await loadMeeting();
         } catch {
             setSaveFeedback("ERROR DELETING SLOTS");

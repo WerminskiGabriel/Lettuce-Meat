@@ -1,4 +1,4 @@
-# Backend Let-Us-Meat
+# Backend Lettuce-Meat
 
 ## Stack
 
@@ -207,7 +207,12 @@ Response 200:
   "meeting": {},
   "participants": [],
   "slots": [],
-  "slots_mine": [] ( if token exists )
+  "slots_mine": []
+  (
+  if
+  token
+  exists
+  )
 }
 ```
 

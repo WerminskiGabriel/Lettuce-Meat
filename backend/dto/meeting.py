@@ -6,7 +6,8 @@ from models import MeetingStatus, AvailabilityStatus
 
 class CreateMeetingDTO(BaseModel):
     title: str = Field(min_length=0, max_length=50)
-    timezone: str = Field(min_length=5, max_length=5)
+    timezone: str = Field(min_length=5, max_length=6)
+    quick_description: str | None = Field(max_length=64)
     date_start: date
     date_end: date = Field()
     day_start_minute: int = Field(ge=0, le=1440)

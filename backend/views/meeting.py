@@ -71,7 +71,7 @@ def edit_meeting_availability(meeting_id):
 
     participant = None
 
-    if token is None:
+    if not token:
         token = auth_tokens.generate_token()
         participant = Participant(
             meeting_id=meeting_id,
@@ -84,6 +84,19 @@ def edit_meeting_availability(meeting_id):
         participant = DB.db.session.scalars(
             select(Participant).where(Participant.meeting_id == meeting_id,
                                       Participant.edit_token_hash == auth_tokens.hash_token(token))).first()
+        if participant is None:
+            token = auth_tokens.generate_token()
+            participant = Participant(
+                meeting_id=meeting_id,
+                display_name=dto.display_name,
+                edit_token_hash=auth_tokens.hash_token(token))
+            DB.db.session.add(participant)
+            DB.db.session.commit()
+        else:
+            participant.display_name = dto.display_name
+            DB.db.session.execute(
+                delete(AvailabilitySlot).where(AvailabilitySlot.participant_id == participant.id)
+            )
 
     for slot in dto.slots:
         DB.db.session.add(AvailabilitySlot(participant_id=participant.id, **slot.model_dump()))
