@@ -1,11 +1,13 @@
 export default function Footer() {
     return (
-        <footer className="bg-neutral-900 text-white border-t border-technical">
+        <footer className="bg-brand-bgLight text-neutral-600 border-t border-technical">
             <div
-                className="px-6 md:px-12 py-4 flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-[10px] md:text-xs text-neutral-400 uppercase tracking-wider">
+                className="px-6 md:px-12 py-4 flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-[10px] md:text-xs uppercase tracking-wider">
                 <div>© 2026 LETTUCE-MEAT</div>
-                <div>AVAILABLE :| • PREFERRED :) • CLICK ACTIVE SLOT TO DESELECT</div>
-                <div className="dtext-brand-orange font-bold"></div>
+                <div className="text-center md:text-left text-neutral-700 normal-case max-w-xl">
+                    Mark slots with :| (available) or :) (preferred)
+                </div>
+                <div className="text-brand-orange font-bold hidden md:block">Signal #FF3E00</div>
             </div>
         </footer>
     );

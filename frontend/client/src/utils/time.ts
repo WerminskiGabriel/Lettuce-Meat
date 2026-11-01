@@ -4,8 +4,14 @@ const SHORT_DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const SHORT_MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 export function timeToMinutes(time: string): number {
-    const [hoursRaw, minutesRaw] = time.split(":");
-    return parseInt(hoursRaw) * 60 + parseInt(minutesRaw);
+    const normalized = time.trim().replace("-", ":");
+    const [hoursRaw, minutesRaw] = normalized.split(":");
+    const hours = parseInt(hoursRaw, 10);
+    const minutes = parseInt(minutesRaw, 10);
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+        return NaN;
+    }
+    return hours * 60 + minutes;
 }
 
 export function minutesToTime(m: number): string {

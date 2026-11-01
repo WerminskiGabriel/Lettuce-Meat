@@ -22,6 +22,7 @@ import Footer from "../components/Footer.tsx";
 import WelcomeGateModal from "../components/WelcomeGateModal.tsx";
 import AvailabilityGrid from "../components/AvailabilityGrid.tsx";
 import TelemetrySidebar from "../components/TelemetrySidebar.tsx";
+import ProcessTicker from "../components/ProcessTicker.tsx";
 
 export default function MeetingPage() {
     const {id} = useParams<{ id: string }>();
@@ -259,6 +260,32 @@ export default function MeetingPage() {
         });
     }
 
+    function toggleSlotKeys(keys: string[]) {
+        if (isLocked || keys.length === 0) return;
+        setMySlots((prev) => {
+            const allMatchBrush = keys.every((k) => prev[k] === brush);
+            const next = {...prev};
+            if (allMatchBrush) {
+                for (const k of keys) {
+                    delete next[k];
+                }
+            } else {
+                for (const k of keys) {
+                    next[k] = brush;
+                }
+            }
+            return next;
+        });
+    }
+
+    function handleToggleDayColumn(dayIso: string) {
+        toggleSlotKeys(minutes.map((m) => `${dayIso}_${m}`));
+    }
+
+    function handleToggleHourRow(startMinute: number) {
+        toggleSlotKeys(days.map((d) => `${d.iso}_${startMinute}`));
+    }
+
     async function handleSaveAvailability() {
         if (!id) return;
         const cleanNick = (nickname.trim() || "GUEST").slice(0, 20);
@@ -384,31 +411,32 @@ export default function MeetingPage() {
             ) : (
                 <div className="animate-bench flex-1 flex flex-col">
                     <div
-                        className="grid grid-cols-1 md:grid-cols-12 border-b border-technical text-xs font-mono font-bold uppercase tracking-wider bg-brand-bg">
+                        className="spec-strip-light grid grid-cols-1 md:grid-cols-12 text-xs font-mono font-bold uppercase tracking-wider animate-fade-up">
                         <div
-                            className="md:col-span-4 p-4 px-6 border-b md:border-b-0 md:border-r border-technical text-black flex items-center justify-between">
-                            <span>MEETING TITLE: {meeting.title.toUpperCase()}</span>
-                            <span className="px-2 py-0.5 bg-black text-white text-[10px]">
-                {isLocked ? "LOCKED" : "OPEN"}
+                            className="md:col-span-4 p-4 px-6 border-b md:border-b-0 md:border-r border-technical flex items-center justify-between gap-2">
+                            <span>Meeting · {meeting.title}</span>
+                            <span className="px-2 py-0.5 bg-white border border-black text-[10px]">
+                {isLocked ? "Locked" : "Open"}
               </span>
                         </div>
                         <div
-                            className="md:col-span-5 p-4 px-6 border-b md:border-b-0 md:border-r border-technical text-black flex items-center">
-                            CLICK OR DRAG TO MARK
+                            className="md:col-span-5 p-4 px-6 border-b md:border-b-0 md:border-r border-technical flex items-center normal-case font-sans font-medium text-sm text-neutral-700">
+                            Click or drag to mark your times, then save below.
                         </div>
                         <div className="md:col-span-3 p-4 px-6 flex items-center justify-between text-black">
-                            <span>TOTAL VOTERS: {totalVoters}</span>
+                            <span>{totalVoters} voters</span>
                             <button
                                 type="button"
                                 onClick={() => setStage("welcome")}
-                                className="underline hover:text-brand-orange font-bold"
+                                className="underline hover:text-brand-orange font-bold uppercase text-xs"
                             >
-                                INTRO SECTION
+                                Intro
                             </button>
                         </div>
                     </div>
+                    <ProcessTicker />
 
-                    <section className="border-b border-technical flex-1 grid grid-cols-1 lg:grid-cols-12">
+                    <section className="border-b border-technical flex-1 grid grid-cols-1 lg:grid-cols-12 flex-col lg:flex-row">
                         <AvailabilityGrid
                             days={days}
                             minutes={minutes}
@@ -420,6 +448,9 @@ export default function MeetingPage() {
                             hoveredCell={activeHoverKey}
                             onCellMouseDown={handleCellMouseDown}
                             onCellMouseEnter={handleCellMouseEnter}
+                            onToggleDayColumn={handleToggleDayColumn}
+                            onToggleHourRow={handleToggleHourRow}
+                            isLocked={isLocked}
                             getCellStats={getCellStats}
                             totalVoters={totalVoters}
                             peakDayIsoSet={peakDayIsoSet}

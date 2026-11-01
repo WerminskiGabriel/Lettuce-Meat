@@ -7,6 +7,11 @@ type GridCol =
     | { kind: "week" }
     | { kind: "month"; label: string };
 
+const TIME_COL_WIDTH_PX = 84;
+const DAY_COL_WIDTH_PX = 96;
+const MONTH_COL_WIDTH_PX = 36;
+const WEEK_COL_WIDTH_PX = 16;
+
 function buildGridColumns(days: DayColumn[]): GridCol[] {
     const cols: GridCol[] = [];
     days.forEach((day, index) => {
@@ -25,10 +30,12 @@ function buildGridColumns(days: DayColumn[]): GridCol[] {
 }
 
 function gridTrackTemplate(cols: GridCol[]): string {
-    const tracks = cols.length
-        ? cols.map((col) => (col.kind === "day" ? "minmax(96px, 1fr)" : col.kind === "month" ? "36px" : "16px"))
-        : ["minmax(96px, 1fr)"];
-    return `84px ${tracks.join(" ")}`;
+    const tracks = cols.map((col) => {
+        if (col.kind === "day") return `${DAY_COL_WIDTH_PX}px`;
+        if (col.kind === "month") return `${MONTH_COL_WIDTH_PX}px`;
+        return `${WEEK_COL_WIDTH_PX}px`;
+    });
+    return `${TIME_COL_WIDTH_PX}px ${tracks.join(" ")}`;
 }
 
 interface AvailabilityGridProps {
@@ -42,6 +49,9 @@ interface AvailabilityGridProps {
     hoveredCell: string | null;
     onCellMouseDown: (cellKey: string) => void;
     onCellMouseEnter: (cellKey: string) => void;
+    onToggleDayColumn: (dayIso: string) => void;
+    onToggleHourRow: (startMinute: number) => void;
+    isLocked: boolean;
     getCellStats: (cellKey: string) => CellStats;
     totalVoters: number;
     peakDayIsoSet: Set<string>;
@@ -58,6 +68,9 @@ export default function AvailabilityGrid({
                                              hoveredCell,
                                              onCellMouseDown,
                                              onCellMouseEnter,
+                                             onToggleDayColumn,
+                                             onToggleHourRow,
+                                             isLocked,
                                              getCellStats,
                                              totalVoters,
                                              peakDayIsoSet,
@@ -82,17 +95,21 @@ export default function AvailabilityGrid({
     }
 
     return (
-        <div className="lg:col-span-8 lg:border-r border-technical flex flex-col justify-between bg-brand-bg">
+        <div className="lg:col-span-8 lg:border-r border-technical flex flex-col justify-between bg-brand-bg order-1 lg:order-none min-w-0">
             {/* Top Brush Bar (2 MODES ONLY: :| AVAILABLE vs :) PREFERRED — THICK BOX) */}
             <div
-                className="p-6 md:p-7 border-b border-technical bg-white flex flex-wrap items-center justify-between gap-6">
+                className="p-6 md:p-7 border-b border-technical bg-white flex flex-wrap items-center justify-between gap-6 animate-fade-up">
                 <div>
           <span className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 block mb-1">
-            01 // (CLICK ACTIVE CELL TO DESELECT)
+            Paint mode
           </span>
                     <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-black">
                         PAINT AVAILABILITY
                     </h2>
+                    <p className="mt-2 text-sm font-medium text-neutral-700 max-w-md normal-case">
+                        Click or drag across the grid to mark times. Tap the same slot again to clear it, then save
+                        your availability.
+                    </p>
                 </div>
 
                 {/* Thick Chunky Two-State Brutalist Switcher Box (:| AVAILABLE vs :) PREFERRED) */}
@@ -130,19 +147,23 @@ export default function AvailabilityGrid({
             </div>
 
             {/* Matrix Table */}
-            <p className="md:hidden px-6 py-2 border-b border-technical bg-brand-bg font-mono text-[10px] font-bold uppercase text-neutral-600">
-                Scroll grid horizontally →
+            <p className="md:hidden px-6 py-2 border-b border-technical bg-brand-bgLight font-mono text-[10px] font-bold uppercase text-neutral-600">
+                Scroll grid horizontally → · use two fingers to paint while scrolling
             </p>
             <div
-                className="select-none overflow-x-auto touch-pan-x"
+                className="select-none overflow-x-auto touch-pan-x overscroll-x-contain"
                 onTouchMove={handleMatrixTouchMove}
             >
+                <div className="inline-block min-w-full w-max">
                 {/* Day Column Headers */}
                 <div
                     className="grid border-b border-technical bg-black text-white font-mono"
                     style={{gridTemplateColumns: gridColsTemplate}}
                 >
-                    <div className="p-4 border-r border-neutral-700 flex flex-col justify-end sticky left-0 z-10 bg-black">
+                    <div
+                        className="p-4 border-r border-neutral-700 flex flex-col justify-end sticky left-0 z-20 bg-black"
+                        style={{width: TIME_COL_WIDTH_PX, minWidth: TIME_COL_WIDTH_PX, maxWidth: TIME_COL_WIDTH_PX}}
+                    >
                         <span className="text-[10px] text-neutral-400 uppercase">TZ</span>
                         <span className="text-xs font-bold">{timezone}</span>
                     </div>
@@ -150,7 +171,7 @@ export default function AvailabilityGrid({
                         if (col.kind !== "day") {
                             return (
                                 <div
-                                    key={`${col.kind}-${index}`}
+                                    key={`${col.kind}-${index}-head`}
                                     className="bg-brand-bg text-black border-x border-black flex items-center justify-center"
                                 >
                                     {col.kind === "month" && (
@@ -168,13 +189,17 @@ export default function AvailabilityGrid({
                         const isPeakDay = peakDayIsoSet.has(d.iso);
                         const nextIsDay = cols[index + 1]?.kind === "day";
                         return (
-                            <div
+                            <button
+                                type="button"
                                 key={d.iso}
-                                className={`p-4 flex flex-col justify-between ${
+                                disabled={isLocked}
+                                onClick={() => onToggleDayColumn(d.iso)}
+                                title={`Toggle ${d.shortDay} ${d.dayNum} ${d.monthShort}`}
+                                className={`p-4 flex flex-col justify-between text-left w-full h-full cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed hover:bg-neutral-900 ${
                                     nextIsDay ? "border-r border-neutral-700" : ""
-                                } ${isPeakDay ? "bg-brand-orange text-white" : "bg-black text-white"}`}
+                                } bg-black text-white`}
                             >
-                                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider">
+                                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-neutral-300">
                                     <span>{d.shortDay}</span>
                                     <span>{d.monthShort}</span>
                                 </div>
@@ -183,12 +208,12 @@ export default function AvailabilityGrid({
                     {d.dayNum}
                   </span>
                                     {isPeakDay && (
-                                        <span className="px-1.5 py-0.5 bg-black text-white text-[10px] font-bold">
+                                        <span className="px-1.5 py-0.5 bg-brand-orange text-white text-[10px] font-bold">
                       PEAK
                     </span>
                                     )}
                                 </div>
-                            </div>
+                            </button>
                         );
                     })}
                 </div>
@@ -202,11 +227,17 @@ export default function AvailabilityGrid({
                             style={{gridTemplateColumns: gridColsTemplate}}
                         >
                             {/* Time Label Cell */}
-                            <div
-                                className="px-4 h-11 border-r border-technical bg-brand-bg flex items-center justify-between font-mono text-xs font-bold text-black tabular-nums sticky left-0 z-10">
+                            <button
+                                type="button"
+                                disabled={isLocked}
+                                onClick={() => onToggleHourRow(m)}
+                                title={`Toggle row ${minutesToTime(m)}`}
+                                className="px-4 h-11 border-r border-technical bg-brand-bgLight flex items-center justify-between font-mono text-xs font-bold text-black tabular-nums sticky left-0 z-20 cursor-pointer hover:bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+                                style={{width: TIME_COL_WIDTH_PX, minWidth: TIME_COL_WIDTH_PX, maxWidth: TIME_COL_WIDTH_PX}}
+                            >
                                 <span>{minutesToTime(m)}</span>
                                 {m % 60 === 0 && <span className="w-1.5 h-1.5 bg-black inline-block"/>}
-                            </div>
+                            </button>
 
                             {/* Day Slot Cells — RGBA(255, 62, 0, alpha) scales with user count */}
                             {cols.map((col, cIdx) => {
@@ -214,7 +245,21 @@ export default function AvailabilityGrid({
                                     return (
                                         <div
                                             key={`${col.kind}-${m}-${cIdx}`}
-                                            className="h-11 bg-brand-bg border-x border-black"
+                                            className="h-11 bg-brand-bg border-x border-black box-border"
+                                            style={{
+                                                width:
+                                                    col.kind === "month"
+                                                        ? MONTH_COL_WIDTH_PX
+                                                        : WEEK_COL_WIDTH_PX,
+                                                minWidth:
+                                                    col.kind === "month"
+                                                        ? MONTH_COL_WIDTH_PX
+                                                        : WEEK_COL_WIDTH_PX,
+                                                maxWidth:
+                                                    col.kind === "month"
+                                                        ? MONTH_COL_WIDTH_PX
+                                                        : WEEK_COL_WIDTH_PX,
+                                            }}
                                         />
                                     );
                                 }
@@ -250,12 +295,17 @@ export default function AvailabilityGrid({
                                             event.preventDefault();
                                             onCellMouseDown(cellKey);
                                         }}
-                                        style={cellBgStyle}
-                                        className={`h-11 px-3 flex items-center justify-between font-mono text-xs font-bold tabular-nums cursor-pointer transition-none ${
+                                        className={`h-11 px-3 flex items-center justify-between font-mono text-xs font-bold tabular-nums cursor-pointer transition-none box-border ${
                                             cols[cIdx + 1]?.kind === "day" ? "border-r border-technical" : ""
                                         } ${stats.count === 0 ? "diagonal-hatch-subtle" : ""} ${
                                             isHovered ? "ring-2 ring-inset ring-black" : ""
                                         }`}
+                                        style={{
+                                            ...cellBgStyle,
+                                            width: DAY_COL_WIDTH_PX,
+                                            minWidth: DAY_COL_WIDTH_PX,
+                                            maxWidth: DAY_COL_WIDTH_PX,
+                                        }}
                                     >
                     <span className="tracking-tight">
                       {stats.count}/{safeDenominator}
@@ -264,13 +314,13 @@ export default function AvailabilityGrid({
                                         <span className="flex items-center gap-1 text-[10px] uppercase">
                       {stats.mine === "preferred" && (
                           <span className="px-1.5 py-0.5 bg-black text-white font-bold border border-white/40">
-                          :) PREF
+                          :)
                         </span>
                       )}
                                             {stats.mine === "canDo" && (
                                                 <span
                                                     className="px-1.5 py-0.5 bg-white text-black font-bold border border-black">
-                          :| AVAIL
+                          :|
                         </span>
                                             )}
                                             {!stats.mine && isFull && (
@@ -284,6 +334,7 @@ export default function AvailabilityGrid({
                             })}
                         </div>
                     ))}
+                </div>
                 </div>
             </div>
 

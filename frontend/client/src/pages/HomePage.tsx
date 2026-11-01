@@ -5,6 +5,24 @@ import {createMeeting} from "../api/client.ts";
 import {timeToMinutes} from "../utils/time.ts";
 import Navbar from "../components/Navbar.tsx";
 import Footer from "../components/Footer.tsx";
+import TimeInput24 from "../components/TimeInput24.tsx";
+
+/** Match backend/models.py + dto/meeting.py */
+const TITLE_MAX_LEN = 32;
+const DESCRIPTION_MAX_LEN = 64;
+const MEETING_DATE_MIN = "2000-01-01";
+const MEETING_DATE_MAX = "2099-12-31";
+
+function meetingDateYear(iso: string): number | null {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+    return Number(iso.slice(0, 4));
+}
+
+function isMeetingYearAllowed(iso: string): boolean {
+    const year = meetingDateYear(iso);
+    if (year === null) return false;
+    return year >= 2000 && year <= 2099;
+}
 
 function detectUtcOffset(): string {
     const offsetMin = -new Date().getTimezoneOffset();
@@ -62,8 +80,8 @@ export default function HomePage() {
         quick_description: "",
         date_start: "",
         date_end: "",
-        start_time: "08-00",
-        end_time: "20-00",
+        start_time: "08:00",
+        end_time: "20:00",
         slot_minutes: 30,
         custom_slot: "",
     });
@@ -81,10 +99,18 @@ export default function HomePage() {
         setError(null);
 
         const issues: string[] = [];
-        if (!formData.title.trim()) issues.push("title is required");
-        // if (formData.timezone.trim().length !== 5) issues.push("timezone must be 5 characters (UTC+1)");
+        const title = formData.title.trim();
+        const description = formData.quick_description.trim();
+        if (!title) issues.push("title is required");
+        if (title.length > TITLE_MAX_LEN) issues.push(`title max ${TITLE_MAX_LEN} characters`);
+        if (description.length > DESCRIPTION_MAX_LEN) {
+            issues.push(`description max ${DESCRIPTION_MAX_LEN} characters`);
+        }
         if (!formData.date_start || !formData.date_end) issues.push("date start and date end are required");
         else if (dayCount === null) issues.push("date end is before date start");
+        else if (!isMeetingYearAllowed(formData.date_start) || !isMeetingYearAllowed(formData.date_end)) {
+            issues.push("dates must be between year 2000 and 2099");
+        }
         else if (dayCount > 31) issues.push("date range cannot be longer than 31 days");
         if (!formData.start_time || !formData.end_time) issues.push("daily hours are required");
         else if (windowMinutes === null) issues.push("daily end must be after daily start");
@@ -101,9 +127,9 @@ export default function HomePage() {
 
         try {
             const dto: CreateMeetingDTO = {
-                title: formData.title.trim(),
+                title,
                 timezone: formData.timezone.trim(),
-                quick_description: formData.quick_description,
+                quick_description: description,
                 date_start: formData.date_start,
                 date_end: formData.date_end,
                 day_start_minute: timeToMinutes(formData.start_time),
@@ -211,11 +237,13 @@ export default function HomePage() {
                                 </div>
                                 <div className="space-y-4 font-mono text-[11px] uppercase">
                                     <label className="block">
-                                        <span className="text-neutral-700 font-semibold block mb-2">TITLE // SESSION NAME</span>
+                                        <span className="text-neutral-700 font-semibold block mb-2">
+                                            TITLE // SESSION NAME ({formData.title.length}/{TITLE_MAX_LEN})
+                                        </span>
                                         <input
                                             type="text"
                                             required
-                                            maxLength={32}
+                                            maxLength={TITLE_MAX_LEN}
                                             value={formData.title}
                                             placeholder="BIT-MEETING"
                                             onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -223,10 +251,12 @@ export default function HomePage() {
                                         />
                                     </label>
                                     <label className="block">
-                                        <span className="text-neutral-700 font-semibold block mb-2">DESCRIPTION // SHORT NOTE</span>
+                                        <span className="text-neutral-700 font-semibold block mb-2">
+                                            DESCRIPTION // SHORT NOTE ({formData.quick_description.length}/{DESCRIPTION_MAX_LEN})
+                                        </span>
                                         <input
                                             type="text"
-                                            maxLength={120}
+                                            maxLength={DESCRIPTION_MAX_LEN}
                                             value={formData.quick_description}
                                             placeholder="WEEKLY SYNC"
                                             onChange={(e) => setFormData({
@@ -286,7 +316,12 @@ export default function HomePage() {
                                                 type="date"
                                                 required
                                                 value={formData.date_start}
-                                                max={formData.date_end || undefined}
+                                                min={MEETING_DATE_MIN}
+                                                max={
+                                                    formData.date_end && formData.date_end <= MEETING_DATE_MAX
+                                                        ? formData.date_end
+                                                        : MEETING_DATE_MAX
+                                                }
                                                 onChange={(e) => setFormData({...formData, date_start: e.target.value})}
                                                 className="w-full bg-white border-2 border-black px-2 py-2 text-xs font-mono font-bold text-black focus:outline-none focus:border-brand-orange"
                                             />
@@ -297,39 +332,34 @@ export default function HomePage() {
                                                 type="date"
                                                 required
                                                 value={formData.date_end}
-                                                min={formData.date_start || undefined}
+                                                min={formData.date_start || MEETING_DATE_MIN}
+                                                max={MEETING_DATE_MAX}
                                                 onChange={(e) => setFormData({...formData, date_end: e.target.value})}
                                                 className="w-full bg-white border-2 border-black px-2 py-2 text-xs font-mono font-bold text-black focus:outline-none focus:border-brand-orange"
                                             />
                                         </label>
                                     </div>
                                     <div>
-                                        <span className="text-neutral-700 font-semibold block mb-2">DAILY HOURS</span>
+                                        <span className="text-neutral-700 font-semibold block mb-2">
+                                            DAILY HOURS (24H)
+                                        </span>
                                         <div className="grid grid-cols-2 gap-3">
                                             <label className="block">
                                                 <span className="text-neutral-500 font-semibold block mb-1">FROM</span>
-                                                <input
-                                                    type="time"
-                                                    required
+                                                <TimeInput24
                                                     value={formData.start_time}
-                                                    onChange={(e) => setFormData({
-                                                        ...formData,
-                                                        start_time: e.target.value
-                                                    })}
-                                                    className="w-full bg-white border-2 border-black px-2 py-2 text-xs font-mono font-bold text-black focus:outline-none focus:border-brand-orange"
+                                                    onChange={(start_time) =>
+                                                        setFormData({...formData, start_time})
+                                                    }
                                                 />
                                             </label>
                                             <label className="block">
                                                 <span className="text-neutral-500 font-semibold block mb-1">TO</span>
-                                                <input
-                                                    type="time"
-                                                    required
+                                                <TimeInput24
                                                     value={formData.end_time}
-                                                    onChange={(e) => setFormData({
-                                                        ...formData,
-                                                        end_time: e.target.value
-                                                    })}
-                                                    className="w-full bg-white border-2 border-black px-2 py-2 text-xs font-mono font-bold text-black focus:outline-none focus:border-brand-orange"
+                                                    onChange={(end_time) =>
+                                                        setFormData({...formData, end_time})
+                                                    }
                                                 />
                                             </label>
                                         </div>
@@ -431,13 +461,12 @@ export default function HomePage() {
                 </form>
 
                 <div
-                    className="bg-black text-white border-b border-technical py-3.5 px-6 md:px-12 font-mono text-xs uppercase tracking-widest flex flex-wrap items-center justify-between gap-4 select-none">
+                    className="spec-strip-light py-3.5 px-6 md:px-12 font-mono text-xs uppercase tracking-widest flex flex-wrap items-center justify-between gap-4 select-none animate-fade-up">
           <span>
-            01 CONFIGURE WINDOW &nbsp;/&nbsp; 02 IDENTITY SIGN-OFF &nbsp;/&nbsp; 03 PAINT
-            AVAILABILITY &nbsp;/&nbsp; 04 LOCK FINAL SLOT
+            01 Configure · 02 Sign in · 03 Paint grid · 04 Lock slot
           </span>
                     <span className="text-brand-orange font-bold">
-                        HEATMAP DENSITY • NO ACCOUNT REQUIRED
+                        Heatmap density · No account required
           </span>
                 </div>
 
@@ -476,31 +505,31 @@ export default function HomePage() {
                 <section className="border-b border-technical">
                     <div className="grid grid-cols-2 md:grid-cols-4">
                         <div
-                            className="bg-brand-orange text-white p-6 md:p-8 min-h-[170px] md:min-h-[190px] flex flex-col justify-between border-b md:border-b-0 border-r border-technical">
-              <span className="text-6xl md:text-7xl font-black tracking-tight tabular-nums">
+                            className="stat-band-cell bg-brand-orange text-white flex flex-col justify-between border-b md:border-b-0 border-r border-technical">
+              <span className="text-5xl md:text-6xl font-black tracking-tight tabular-nums leading-none">
                 100%
               </span>
-                            <span className="font-mono text-xs uppercase tracking-wider font-bold">
+                            <span className="font-mono text-[10px] md:text-xs uppercase tracking-wider font-bold">
                 PEAK QUORUM ALIGNMENT
               </span>
                         </div>
                         <div
-                            className="diagonal-hatch min-h-[170px] md:min-h-[190px] border-b md:border-b-0 border-r border-technical"/>
+                            className="stat-band-cell diagonal-hatch border-b md:border-b-0 border-r border-technical"/>
                         <div
-                            className="bg-brand-bg p-6 md:p-8 min-h-[170px] md:min-h-[190px] flex flex-col justify-between border-b md:border-b-0 border-r border-technical">
-              <span className="text-6xl md:text-7xl font-black tracking-tight text-black tabular-nums">
+                            className="stat-band-cell bg-brand-bg flex flex-col justify-between border-b md:border-b-0 border-r border-technical">
+              <span className="text-5xl md:text-6xl font-black tracking-tight text-black tabular-nums leading-none">
                 2
               </span>
-                            <span className="font-mono text-xs uppercase tracking-wider font-bold text-black">
+                            <span className="font-mono text-[10px] md:text-xs uppercase tracking-wider font-bold text-black">
                 AVAILABILITY MODES
               </span>
                         </div>
                         <div
-                            className="bg-black text-white p-6 md:p-8 min-h-[170px] md:min-h-[190px] flex flex-col justify-between border-b md:border-b-0">
-              <span className="text-6xl md:text-7xl font-black tracking-tight tabular-nums">
+                            className="stat-band-cell bg-black text-white flex flex-col justify-between border-b md:border-b-0">
+              <span className="text-5xl md:text-6xl font-black tracking-tight tabular-nums leading-none">
                 0
               </span>
-                            <span className="font-mono text-xs uppercase tracking-wider font-bold text-neutral-300">
+                            <span className="font-mono text-[10px] md:text-xs uppercase tracking-wider font-bold text-neutral-300">
                 ACCOUNTS REQUIRED
               </span>
                         </div>

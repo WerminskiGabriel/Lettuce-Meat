@@ -74,6 +74,72 @@ body {
     animation: marquee 25s linear infinite;
 }
 
+@keyframes fade-up {
+    0% {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-up-delay {
+    animation: fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards;
+    opacity: 0;
+}
+
+.spec-strip-light {
+    background-color: #F4F4F0;
+    border-bottom: 1px solid #000000;
+    color: #262626;
+}
+
+.accent-rule {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #000000;
+    position: relative;
+}
+
+.accent-rule::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -1px;
+    height: 4px;
+    width: 38%;
+    background: #FF3E00;
+}
+
+.process-ticker {
+    overflow: hidden;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    background: #111111;
+    color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-ticker {
+        animation: none;
+    }
+
+    .animate-bench,
+    .animate-fade-up,
+    .animate-fade-up-delay {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
+
 @keyframes bench-expand {
     0% {
         opacity: 0;
@@ -91,4 +157,16 @@ body {
 
 .tabular-nums {
     font-variant-numeric: tabular-nums;
+}
+
+.stat-band-cell {
+    min-height: max(10.625rem, 16vh);
+    padding: 1.5rem 2rem;
+}
+
+@media (min-width: 768px) {
+    .stat-band-cell {
+        min-height: max(11.875rem, 18vh);
+        padding: 2rem;
+    }
 }

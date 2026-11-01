@@ -32,7 +32,7 @@ export default function Navbar({
     }
 
     return (
-        <header className="border-b-[3px] border-black bg-brand-bg sticky top-0 z-50">
+        <header className="border-b-[2px] border-black bg-brand-bg sticky top-0 z-50">
             <div className="flex flex-col md:flex-row items-stretch justify-between min-h-[68px]">
                 <div
                     className="flex items-center justify-between px-6 py-4 md:py-0 md:px-8 border-b-[2px] md:border-b-0 md:border-r-[2.5px] border-black bg-brand-bg">
@@ -54,7 +54,7 @@ export default function Navbar({
                         className={`px-6 md:px-7 py-4 border-l-[2px] border-r-[2px] border-black flex items-center transition-colors ${
                             isHome
                                 ? "bg-white text-brand-orange font-black shadow-[inset_0_-4px_0_#FF3E00]"
-                                : "text-black hover:bg-black hover:text-white"
+                                : "text-black hover:bg-brand-bgLight hover:text-brand-orange"
                         }`}
                     >
                         Create / Join meeting
@@ -80,7 +80,7 @@ export default function Navbar({
                                 className={`px-6 md:px-7 py-4 border-r-[2px] border-black flex items-center transition-colors ${
                                     activeStage === "bench"
                                         ? "bg-white text-brand-orange font-black shadow-[inset_0_-4px_0_#FF3E00]"
-                                        : "text-black hover:bg-black hover:text-white"
+                                        : "text-black hover:bg-brand-bgLight hover:text-brand-orange"
                                 }`}
                             >
                                 Availability
@@ -92,7 +92,7 @@ export default function Navbar({
                         <button
                             type="button"
                             onClick={onToggleHostMode}
-                            className="px-6 md:px-7 py-4 border-r-[2px] border-black text-black flex items-center hover:bg-black hover:text-white transition-colors"
+                            className="px-6 md:px-7 py-4 border-r-[2px] border-black text-black flex items-center hover:bg-brand-bgLight hover:text-brand-orange transition-colors"
                         >
                             User Type: {isHostMode ? "HOST" : "GUEST"}
                         </button>
@@ -101,7 +101,7 @@ export default function Navbar({
                     <button
                         type="button"
                         onClick={handleCopyShareLink}
-                        className="px-7 py-4 bg-brand-orange text-white font-black flex items-center hover:bg-black transition-colors whitespace-nowrap"
+                        className="px-7 py-4 bg-brand-orange text-white font-black flex items-center hover:bg-brand-orangeDark transition-colors whitespace-nowrap"
                     >
                         {copied
                             ? "LINK COPIED"
