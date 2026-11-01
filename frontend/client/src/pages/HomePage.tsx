@@ -16,20 +16,6 @@ function detectUtcOffset(): string {
     return `UTC${sign}${hours}:${String(mins).padStart(2, "0")}`;
 }
 
-function detectZoneHint(): string {
-    try {
-        const zone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
-        const region = zone.split("/")[0]?.replace(/_/g, " ").toUpperCase() ?? "";
-        const shortName = new Intl.DateTimeFormat("en-GB", {timeZoneName: "short"})
-            .formatToParts(new Date())
-            .find((part) => part.type === "timeZoneName")?.value ?? "";
-        if (region && shortName) return `${region} (${shortName})`;
-        return region || shortName;
-    } catch {
-        return "";
-    }
-}
-
 function countInclusiveDays(startIso: string, endIso: string): number | null {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(startIso) || !/^\d{4}-\d{2}-\d{2}$/.test(endIso)) return null;
     const start = new Date(`${startIso}T00:00:00Z`).getTime();
@@ -81,7 +67,6 @@ export default function HomePage() {
         slot_minutes: 30,
         custom_slot: "",
     });
-    const zoneHint = detectZoneHint();
     const customRaw = formData.custom_slot.trim();
     const hasCustomSlot = customRaw !== "";
     const effectiveSlot = hasCustomSlot ? Number(customRaw) : formData.slot_minutes;

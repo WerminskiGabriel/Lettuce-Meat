@@ -21,10 +21,10 @@ class CreateMeetingDTO(BaseModel):
     def check_validity(self):
         if self.date_start > self.date_end:
             raise ValueError("date_end has to be greater than date_start")
-        if self.day_start_minute > self.day_end_minute:
+        if self.day_start_minute >= self.day_end_minute:
             raise ValueError("day_end_minute has to be greater than day_start_minute")
-        if (24 * 60) % self.slot_minutes != 0:
-            raise ValueError("slot_minutes has to evenly divide 1440(24*60)")
+        if (self.day_end_minute - self.day_start_minute) % self.slot_minutes != 0:
+            raise ValueError("slot_minutes must evenly divide the daily time window")
         return self
 
 

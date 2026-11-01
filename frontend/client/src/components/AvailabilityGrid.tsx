@@ -66,6 +66,21 @@ export default function AvailabilityGrid({
     const cols = buildGridColumns(days);
     const gridColsTemplate = gridTrackTemplate(cols);
 
+    function cellKeyFromTouch(touch: React.Touch) {
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cell = target?.closest("[data-cell-key]");
+        return cell?.getAttribute("data-cell-key") ?? null;
+    }
+
+    function handleMatrixTouchMove(event: React.TouchEvent) {
+        if (event.touches.length !== 1) return;
+        const cellKey = cellKeyFromTouch(event.touches[0]);
+        if (cellKey) {
+            event.preventDefault();
+            onCellMouseEnter(cellKey);
+        }
+    }
+
     return (
         <div className="lg:col-span-8 lg:border-r border-technical flex flex-col justify-between bg-brand-bg">
             {/* Top Brush Bar (2 MODES ONLY: :| AVAILABLE vs :) PREFERRED — THICK BOX) */}
@@ -115,7 +130,13 @@ export default function AvailabilityGrid({
             </div>
 
             {/* Matrix Table */}
-            <div className="select-none overflow-x-auto">
+            <p className="md:hidden px-6 py-2 border-b border-technical bg-brand-bg font-mono text-[10px] font-bold uppercase text-neutral-600">
+                Scroll grid horizontally →
+            </p>
+            <div
+                className="select-none overflow-x-auto touch-pan-x"
+                onTouchMove={handleMatrixTouchMove}
+            >
                 {/* Day Column Headers */}
                 <div
                     className="grid border-b border-technical bg-black text-white font-mono"
@@ -221,8 +242,14 @@ export default function AvailabilityGrid({
                                 return (
                                     <div
                                         key={cellKey}
+                                        data-cell-key={cellKey}
                                         onMouseDown={() => onCellMouseDown(cellKey)}
                                         onMouseEnter={() => onCellMouseEnter(cellKey)}
+                                        onTouchStart={(event) => {
+                                            if (event.touches.length !== 1) return;
+                                            event.preventDefault();
+                                            onCellMouseDown(cellKey);
+                                        }}
                                         style={cellBgStyle}
                                         className={`h-11 px-3 flex items-center justify-between font-mono text-xs font-bold tabular-nums cursor-pointer transition-none ${
                                             cols[cIdx + 1]?.kind === "day" ? "border-r border-technical" : ""

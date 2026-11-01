@@ -1,4 +1,4 @@
-import type {CreateMeetingDTO, EditAvailabilitySlotDTO, AvailabilitySlotDTO} from "../types.tsx";
+import type {CreateMeetingDTO, EditAvailabilitySlotDTO} from "../types.tsx";
 
 export async function createMeeting(meetingDTO: CreateMeetingDTO) {
     const response = await fetch("/api/meetings",

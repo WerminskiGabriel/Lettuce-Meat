@@ -18,3 +18,9 @@ class Config:
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+
+
+class BenchConfig(Config):
+    TESTING = True
+    BENCH_DB_PATH = Config.ROOT / "tests" / "bench.db"
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{BENCH_DB_PATH.as_posix()}"

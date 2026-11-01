@@ -90,7 +90,13 @@ export default function MeetingPage() {
     useEffect(() => {
         const stopDrag = () => setDragAction(null);
         window.addEventListener("mouseup", stopDrag);
-        return () => window.removeEventListener("mouseup", stopDrag);
+        window.addEventListener("touchend", stopDrag);
+        window.addEventListener("touchcancel", stopDrag);
+        return () => {
+            window.removeEventListener("mouseup", stopDrag);
+            window.removeEventListener("touchend", stopDrag);
+            window.removeEventListener("touchcancel", stopDrag);
+        };
     }, []);
 
     if (loading) {
@@ -334,7 +340,7 @@ export default function MeetingPage() {
                 token
             );
             setMySlots({});
-            setSaveFeedback("YOUR AVAILABILITY WAS SAVED");
+            setSaveFeedback("YOUR AVAILABILITY WAS REMOVED");
             await loadMeeting();
         } catch {
             setSaveFeedback("ERROR DELETING SLOTS");

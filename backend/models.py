@@ -26,7 +26,7 @@ class Meeting(DB.db.Model):
     day_end_minute: Mapped[int | None] = mapped_column()
     slot_minutes: Mapped[int] = mapped_column()
     status: Mapped[MeetingStatus] = mapped_column(default=MeetingStatus.OPEN)
-    creation_date: Mapped[datetime] = mapped_column(default=datetime.now(UTC))
+    creation_date: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
     admin_id: Mapped[uuid.UUID | None] = mapped_column()
 
 

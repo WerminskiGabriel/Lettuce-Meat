@@ -125,6 +125,9 @@ def delete_meeting_availability(meeting_id):
         select(Participant).where(Participant.meeting_id == meeting_id,
                                   Participant.edit_token_hash == auth_tokens.hash_token(token))).first()
 
+    if participant is None:
+        return jsonify({"error": "Participant not found"}), 404
+
     for slot in dto.slots:
         DB.db.session.execute(
             delete(AvailabilitySlot).where(
