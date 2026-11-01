@@ -9,10 +9,18 @@ class Config:
 
     load_dotenv(ROOT / ".env")
 
+    _DEFAULT_DB = ROOT / "lettuce.db"
+
     API_KEY = os.getenv("API_KEY")
     SECRET_KEY = os.getenv("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
-    SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS")
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "SQLALCHEMY_DATABASE_URI",
+        f"sqlite:///{_DEFAULT_DB.as_posix()}",
+    )
+    _track_mods = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS")
+    SQLALCHEMY_TRACK_MODIFICATIONS = (
+        _track_mods.lower() in ("1", "true", "yes") if _track_mods is not None else False
+    )
 
 
 class TestConfig(Config):
