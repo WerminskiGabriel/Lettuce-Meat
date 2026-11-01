@@ -3,9 +3,19 @@ from pydantic import BaseModel, Field, model_validator, ValidationError
 import uuid
 from models import MeetingStatus, AvailabilityStatus
 
+MIN_MEETING_YEAR = 2000
+MAX_MEETING_YEAR = 2099
+
+
+def assert_meeting_calendar_date(value: date, field_name: str) -> None:
+    if value.year < MIN_MEETING_YEAR or value.year > MAX_MEETING_YEAR:
+        raise ValueError(
+            f"{field_name} must use a year between {MIN_MEETING_YEAR} and {MAX_MEETING_YEAR}"
+        )
+
 
 class CreateMeetingDTO(BaseModel):
-    title: str = Field(min_length=0, max_length=50)
+    title: str = Field(min_length=1, max_length=32)
     timezone: str = Field(min_length=5, max_length=6)
     quick_description: str | None = Field(max_length=64)
     date_start: date
@@ -19,6 +29,9 @@ class CreateMeetingDTO(BaseModel):
 
     @model_validator(mode="after")
     def check_validity(self):
+        assert_meeting_calendar_date(self.date_start, "date_start")
+        assert_meeting_calendar_date(self.date_end, "date_end")
+        assert_meeting_calendar_date(self.creation_date, "creation_date")
         if self.date_start > self.date_end:
             raise ValueError("date_end has to be greater than date_start")
         if self.day_start_minute >= self.day_end_minute:

@@ -111,7 +111,25 @@ class TestCreateMeeting:
         response = self.client.post("/api/meetings", json=data)
 
         body = response.get_json()
-        assert response.status_code == 400, f"expected http status 201, got: {response.status_code}:\n{body}"
+        assert response.status_code == 400, f"expected http status 400, got: {response.status_code}:\n{body}"
+
+    def test_invalid_meeting_year(self):
+        data = {
+            "title": "bit-meeting-kawka",
+            "timezone": "UTC+1",
+            "quick_description": "desc",
+            "date_start": "1111-01-01",
+            "date_end": "2026-10-30",
+            "day_start_minute": 480,
+            "day_end_minute": 960,
+            "slot_minutes": 30,
+            "status": MeetingStatus.OPEN,
+            "creation_date": "2026-10-28",
+            "admin_id": uuid.uuid4(),
+        }
+        response = self.client.post("/api/meetings", json=data)
+        body = response.get_json()
+        assert response.status_code == 400, f"expected http status 400, got: {response.status_code}:\n{body}"
 
 
 class TestGetMeeting:
