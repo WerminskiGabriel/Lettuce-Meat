@@ -42,7 +42,7 @@ export default function AvailabilityGrid({
       <div className="p-6 md:p-7 border-b border-technical bg-white flex flex-wrap items-center justify-between gap-6">
         <div>
           <span className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 block mb-1">
-            01 // SIGNAL MODE SELECTOR (CLICK ACTIVE CELL TO DESELECT)
+            01 // (CLICK ACTIVE CELL TO DESELECT)
           </span>
           <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-black">
             PAINT AVAILABILITY
@@ -202,7 +202,7 @@ export default function AvailabilityGrid({
       {/* Matrix Legend Footer Bar (RGBA Density Scale) */}
       <div className="p-4 px-6 border-t border-technical bg-white flex flex-wrap items-center justify-between gap-4 font-mono text-xs uppercase font-bold">
         <div className="flex flex-wrap items-center gap-5">
-          <span className="text-neutral-600">RGBA(255, 62, 0, a) DENSITY:</span>
+          <span className="text-neutral-600">ORANGE DENSITY:</span>
           {[
             { label: "0%", a: 0 },
             { label: "25%", a: 0.25 },

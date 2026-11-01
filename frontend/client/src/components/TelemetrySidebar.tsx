@@ -49,7 +49,7 @@ export default function TelemetrySidebar({
       {/* Gate 01: Respondent Sign-Off Box */}
       <div className="p-6 md:p-8 bg-brand-bg flex flex-col justify-between">
         <div className="flex justify-between font-mono text-xs uppercase font-bold text-black mb-4">
-          <span>01 // RESPONDENT</span>
+          <span>01 // USERNAME</span>
           <span>{Object.keys(mySlots).length} SLOTS ACTIVE</span>
         </div>
 
@@ -101,7 +101,7 @@ export default function TelemetrySidebar({
       <div className="p-6 md:p-8 bg-neutral-900 text-white flex-1 flex flex-col justify-between">
         <div>
           <div className="flex justify-between font-mono text-xs uppercase text-neutral-400 mb-6">
-            <span>02 // SLOT TELEMETRY</span>
+            <span>02 // SLOT INFORMATION</span>
             <span className="text-brand-orange font-bold">
               {hoverStats?.count || 0}/{safeTotal} ALIGNED
             </span>
@@ -132,7 +132,7 @@ export default function TelemetrySidebar({
               ))
             ) : (
               <div className="py-6 text-neutral-400">
-                NO RESPONDENTS MARKED THIS WINDOW.
+                No votes recorded in this slot.
               </div>
             )}
           </div>
@@ -152,7 +152,7 @@ export default function TelemetrySidebar({
 
         <div className="bg-brand-orange/95 border border-white/50 p-4 mb-4">
           <div className="font-mono text-[11px] uppercase tracking-widest text-white/90 mb-1">
-            OPTIMAL WINDOW FOUND
+            BEST WINDOW FOUND
           </div>
           {bestSlotSummary ? (
             <>
@@ -160,7 +160,7 @@ export default function TelemetrySidebar({
                 {bestSlotSummary.dateLabel} • {bestSlotSummary.timeLabel}
               </div>
               <div className="font-mono text-xs text-white mt-1">
-                {bestSlotSummary.count}/{safeTotal} RESPONDENTS (
+                {bestSlotSummary.count}/{safeTotal} VOTERS (
                 {bestSlotSummary.preferredCount} PREFERRED)
               </div>
             </>

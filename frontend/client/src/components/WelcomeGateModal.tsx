@@ -125,7 +125,7 @@ export default function WelcomeGateModal({
             {/* Nickname Input & Morph CTA */}
             <div className="pt-1">
               <label className="block font-mono text-xs uppercase font-bold text-white mb-2">
-                YOUR RESPONDENT NICKNAME:
+                YOUR NICKNAME:
               </label>
               <div className="flex flex-col sm:flex-row gap-0 border-2 border-black bg-white">
                 <input

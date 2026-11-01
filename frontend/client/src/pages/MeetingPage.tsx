@@ -381,23 +381,23 @@ export default function MeetingPage() {
                         className="grid grid-cols-1 md:grid-cols-12 border-b border-technical text-xs font-mono font-bold uppercase tracking-wider bg-brand-bg">
                         <div
                             className="md:col-span-4 p-4 px-6 border-b md:border-b-0 md:border-r border-technical text-black flex items-center justify-between">
-                            <span>SESSION: {meeting.title.toUpperCase()}</span>
+                            <span>MEETING TITLE: {meeting.title.toUpperCase()}</span>
                             <span className="px-2 py-0.5 bg-black text-white text-[10px]">
                 {isLocked ? "LOCKED" : "OPEN"}
               </span>
                         </div>
                         <div
                             className="md:col-span-5 p-4 px-6 border-b md:border-b-0 md:border-r border-technical text-black flex items-center">
-                            CLICK OR DRAG TO MARK • CLICK AN ACTIVE SLOT TO DESELECT IT
+                            CLICK OR DRAG TO MARK
                         </div>
                         <div className="md:col-span-3 p-4 px-6 flex items-center justify-between text-black">
-                            <span>RESPONDENTS: {totalVoters}</span>
+                            <span>TOTAL VOTERS: {totalVoters}</span>
                             <button
                                 type="button"
                                 onClick={() => setStage("welcome")}
                                 className="underline hover:text-brand-orange font-bold"
                             >
-                                ← INTRO GATE
+                                INTRO SECTION
                             </button>
                         </div>
                     </div>
